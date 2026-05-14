@@ -1,0 +1,4 @@
+========= Mulai dari sini =========
+gcloud auth login
+
+gcloud config set project

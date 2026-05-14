@@ -1,0 +1,26 @@
+﻿gcloud auth login
+set GOOGLE_APPLICATION_CREDENTIALS=C:\path\to\your\service-account.json
+
+# add important role from credential account
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID --member="serviceAccount:YOUR_SERVICE_ACCOUNT@YOUR_PROJECT_ID.iam.gserviceaccount.com" --role="roles/run.admin"
+
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID --member="serviceAccount:YOUR_SERVICE_ACCOUNT@YOUR_PROJECT_ID.iam.gserviceaccount.com" --role="roles/cloudbuild.builds.builder"
+
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID --member="serviceAccount:YOUR_SERVICE_ACCOUNT@YOUR_PROJECT_ID.iam.gserviceaccount.com" --role="roles/storage.admin"
+
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID --member="serviceAccount:YOUR_SERVICE_ACCOUNT@YOUR_PROJECT_ID.iam.gserviceaccount.com" --role="roles/artifactregistry.writer"
+
+# add permission discovery engine for testing in jupyternotebook
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID --member="serviceAccount:service-YOUR_PROJECT_NUMBER@gcp-sa-aiplatform-re.iam.gserviceaccount.com" --role="roles/discoveryengine.admin"
+
+# Deploy Third Party API
+gcloud run deploy third-party-api-service --source . --region asia-southeast2 --allow-unauthenticated --build-service-account=projects/YOUR_PROJECT_ID/serviceAccounts/YOUR_SERVICE_ACCOUNT@YOUR_PROJECT_ID.iam.gserviceaccount.com --service-account=YOUR_SERVICE_ACCOUNT@YOUR_PROJECT_ID.iam.gserviceaccount.com
+
+# Deploy Chatbot App
+gcloud run deploy chatbot-app-service --source . --region asia-southeast2 --allow-unauthenticated --build-service-account=projects/YOUR_PROJECT_ID/serviceAccounts/YOUR_SERVICE_ACCOUNT@YOUR_PROJECT_ID.iam.gserviceaccount.com --service-account=YOUR_SERVICE_ACCOUNT@YOUR_PROJECT_ID.iam.gserviceaccount.com
+
+# Delete services
+gcloud run services delete third-party-api-service --region asia-southeast2 --quiet
+
+# view log service cloud run
+gcloud beta run services logs tail third-party-api-service --region asia-southeast2

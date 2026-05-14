@@ -1,0 +1,8 @@
+﻿# data store
+https://console.cloud.google.com/gen-app-builder/data-stores?project=YOUR_PROJECT_ID
+
+# bucket storage
+https://console.cloud.google.com/storage/browser?project=YOUR_PROJECT_ID&prefix=&forceOnBucketsSortingFiltering=true&bucketType=live
+
+# agent engine
+https://console.cloud.google.com/agent-platform/agent-registry/agents?project=YOUR_PROJECT_ID

@@ -1,0 +1,8 @@
+### Hot to check your project region
+- gcloud config get-value compute/region
+
+### How to create datastore:
+- ensure create bucket first and upload your file
+- https://docs.cloud.google.com/generative-ai-app-builder/docs/create-data-store-es#discoveryengine_v1_generated_DocumentService_ImportDocuments_sync-console
+- choose your datastore
+

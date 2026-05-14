@@ -1,0 +1,689 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #72EDF2 10%, #5151E5 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+        .chat-container {
+            background-color: #fff;
+            width: 1200px;
+            max-width: 100%;
+            height: 550px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .chat-header {
+            background-color: #075E54;
+            color: #fff;
+            padding: 15px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .chat-header .title {
+            font-size: 1.25em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .chat-header .support-service {
+            font-size: 1em;
+            font-weight: normal;
+        }
+        #chatbox {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #ECE5DD;
+            height: calc(100% - 130px);
+            scroll-behavior: smooth;
+        }
+        #chatbox .message {
+            margin: 10px 0;
+            display: flex;
+            align-items: flex-end;
+        }
+        #chatbox .message.user {
+            justify-content: flex-end;
+        }
+        #chatbox .message.user .text {
+            background-color: #DCF8C6;
+            color: #000;
+            border-bottom-right-radius: 0;
+        }
+        #chatbox .message.bot {
+            justify-content: flex-start;
+        }
+        #chatbox .message.bot .text {
+            background-color: #fff;
+            color: #000;
+            border-bottom-left-radius: 0;
+        }
+        #chatbox .message .text {
+            max-width: 70%;
+            padding: 8px 15px 15px 15px;
+            border-radius: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            font-size: 0.95em;
+            word-wrap: break-word;
+            line-height: 1.4;
+            position: relative;
+        }
+        .chat-input {
+            display: flex;
+            border-top: 1px solid #ddd;
+            background-color: #f7f7f7;
+            padding: 12px;
+            align-items: center;
+            position: sticky;
+            bottom: 0;
+        }
+        #userInput {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            outline: none;
+            border-radius: 20px;
+            margin-right: 10px;
+            font-size: 0.95em;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        #sendButton, #recordButton {
+            padding: 10px;
+            background-color: #075E54;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.25em;
+            width: 40px;
+            height: 40px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-left: 8px;
+            transition: all 0.3s ease;
+        }
+        #sendButton:hover, #recordButton:hover {
+            transform: scale(1.05);
+        }
+        #recordButton {
+            background-color: #128C7E;
+        }
+        #recordButton.recording {
+            background-color: #FF0000;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        .audio-message {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px;
+        }
+        .audio-message .play-button {
+            background-color: #075E54;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .audio-message .play-button:hover {
+            background-color: #128C7E;
+        }
+        .audio-message .audio-duration {
+            font-size: 0.85em;
+            color: #555;
+        }
+        .audio-wave {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 15px;
+        }
+        .audio-wave .bar {
+            width: 3px;
+            height: 100%;
+            background-color: #075E54;
+            border-radius: 2px;
+        }
+        .typing-indicator {
+            display: flex;
+            padding: 10px;
+            gap: 5px;
+        }
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background-color: #888;
+            border-radius: 50%;
+            animation: typingBounce 1.5s infinite ease-in-out;
+        }
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes typingBounce {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+        #status-message {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 10;
+        }
+        #status-message.show {
+            opacity: 1;
+        }
+        .audio audio {
+            display: none;
+        }
+        .point-list {
+            padding-left: 15px;
+            margin: 5px 0;
+        }
+        .point-item {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 15px;
+        }
+        .point-item:before {
+            content: "â€¢";
+            position: absolute;
+            left: 0;
+            color: #075E54;
+            font-weight: bold;
+        }
+        .numbered-item {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 20px;
+        }
+        .numbered-item:before {
+            content: attr(data-number) ".";
+            position: absolute;
+            left: 0;
+            color: #075E54;
+            font-weight: bold;
+        }
+        .message-time {
+            position: absolute;
+            bottom: 1px;
+            right: 10px;
+            font-size: 0.57em;
+            color: #666;
+        }
+        .message.user .message-time {
+            color: #4a7c3a;
+        }
+        .date-divider {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            color: #666;
+            font-size: 0.8em;
+        }
+        .date-divider::before,
+        .date-divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid #ccc;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="title">
+                <i class="fas fa-comments"></i> Smart Assistant
+            </div>
+            <div class="support-service">
+                Healthcare Support
+            </div>
+        </div>
+        <div id="status-message"></div>
+        <div id="chatbox"></div>
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Type your message here...">
+            <button id="recordButton" title="Record audio message"><i class="fas fa-microphone"></i></button>
+            <button id="sendButton" title="Send message"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+    <script>
+        // Global variables
+        let session_id = null;
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+        let audioBlob;
+        let isWaitingForResponse = false;
+        let lastDateSeparator = null;
+
+        function showStatusMessage(message, duration = 3000) {
+            const statusMsg = document.getElementById('status-message');
+            statusMsg.textContent = message;
+            statusMsg.classList.add('show');
+            
+            setTimeout(() => {
+                statusMsg.classList.remove('show');
+            }, duration);
+        }
+
+        function formatMessageWithPoints(message) {
+            // Check for numbered lists (1., 2., etc.)
+            if (message.match(/^\d+\.\s+/gm)) {
+                const lines = message.split('\n');
+                let inList = false;
+                let listItems = [];
+                let result = [];
+                let counter = 1;
+
+                for (let line of lines) {
+                    const numberedMatch = line.match(/^(\d+)\.\s+(.*)/);
+                    if (numberedMatch) {
+                        if (!inList) {
+                            inList = true;
+                            result.push('<div class="point-list">');
+                        }
+                        listItems.push(`<div class="numbered-item" data-number="${numberedMatch[1]}">${numberedMatch[2]}</div>`);
+                    } else {
+                        if (inList) {
+                            result.push(listItems.join(''));
+                            result.push('</div>');
+                            listItems = [];
+                            inList = false;
+                        }
+                        result.push(line);
+                    }
+                }
+
+                if (inList) {
+                    result.push(listItems.join(''));
+                    result.push('</div>');
+                }
+
+                return result.join('\n');
+            }
+            
+            // Check for bullet points (*, -)
+            if (message.includes('* ') || message.includes('- ')) {
+                const lines = message.split('\n');
+                let inList = false;
+                let listItems = [];
+                let result = [];
+
+                for (let line of lines) {
+                    const bulletMatch = line.match(/^([*-])\s+(.*)/);
+                    if (bulletMatch) {
+                        if (!inList) {
+                            inList = true;
+                            result.push('<div class="point-list">');
+                        }
+                        listItems.push(`<div class="point-item">${bulletMatch[2]}</div>`);
+                    } else {
+                        if (inList) {
+                            result.push(listItems.join(''));
+                            result.push('</div>');
+                            listItems = [];
+                            inList = false;
+                        }
+                        result.push(line);
+                    }
+                }
+
+                if (inList) {
+                    result.push(listItems.join(''));
+                    result.push('</div>');
+                }
+
+                return result.join('\n');
+            }
+
+            return message;
+        }
+
+        function getCurrentTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            return `${hours}:${minutes} ${ampm}`;
+        }
+
+        function getCurrentDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return now.toLocaleDateString('en-US', options);
+        }
+
+        function checkAndAddDateSeparator() {
+            const currentDate = getCurrentDate();
+            if (currentDate !== lastDateSeparator) {
+                const chatbox = document.getElementById('chatbox');
+                const dateDivider = document.createElement('div');
+                dateDivider.classList.add('date-divider');
+                dateDivider.textContent = currentDate;
+                chatbox.appendChild(dateDivider);
+                lastDateSeparator = currentDate;
+                chatbox.scrollTop = chatbox.scrollHeight;
+            }
+        }
+
+        function addMessage(sender, message, isAudio = false, audioData = null) {
+            checkAndAddDateSeparator();
+            
+            const chatbox = document.getElementById('chatbox');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender);
+
+            const textDiv = document.createElement('div');
+            textDiv.classList.add('text');
+            
+            if (isAudio && audioData) {
+                // Create audio element
+                const audioContainer = document.createElement('div');
+                audioContainer.classList.add('audio-message');
+                
+                const playButton = document.createElement('button');
+                playButton.classList.add('play-button');
+                playButton.innerHTML = '<i class="fas fa-play"></i>';
+                
+                const audio = document.createElement('audio');
+                audio.src = audioData;
+                audio.classList.add('audio');
+                
+                const audioVisual = document.createElement('div');
+                audioVisual.classList.add('audio-wave');
+                
+                // Add bars for audio wave visualization
+                for (let i = 0; i < 5; i++) {
+                    const bar = document.createElement('div');
+                    bar.classList.add('bar');
+                    bar.style.height = `${Math.random() * 10 + 5}px`;
+                    audioVisual.appendChild(bar);
+                }
+                
+                const durationSpan = document.createElement('span');
+                durationSpan.classList.add('audio-duration');
+                durationSpan.textContent = "Voice message";
+                
+                // Add play functionality
+                playButton.addEventListener('click', () => {
+                    if (audio.paused) {
+                        audio.play();
+                        playButton.innerHTML = '<i class="fas fa-pause"></i>';
+                    } else {
+                        audio.pause();
+                        playButton.innerHTML = '<i class="fas fa-play"></i>';
+                    }
+                });
+                
+                // Reset button when audio ends
+                audio.addEventListener('ended', () => {
+                    playButton.innerHTML = '<i class="fas fa-play"></i>';
+                });
+                
+                audioContainer.appendChild(playButton);
+                audioContainer.appendChild(audioVisual);
+                audioContainer.appendChild(durationSpan);
+                textDiv.appendChild(audioContainer);
+                textDiv.appendChild(audio);
+            } else {
+                // Format the message with proper point styling
+                textDiv.innerHTML = formatMessageWithPoints(message);
+            }
+
+            // Add timestamp
+            const timeSpan = document.createElement('span');
+            timeSpan.classList.add('message-time');
+            timeSpan.textContent = getCurrentTime();
+            textDiv.appendChild(timeSpan);
+
+            messageDiv.appendChild(textDiv);
+            chatbox.appendChild(messageDiv);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+        
+        function addTypingIndicator() {
+            const chatbox = document.getElementById('chatbox');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', 'bot');
+            messageDiv.id = 'typing-indicator-container';
+
+            const textDiv = document.createElement('div');
+            textDiv.classList.add('text');
+            
+            const typingDiv = document.createElement('div');
+            typingDiv.classList.add('typing-indicator');
+            
+            for (let i = 0; i < 3; i++) {
+                const dot = document.createElement('span');
+                typingDiv.appendChild(dot);
+            }
+            
+            textDiv.appendChild(typingDiv);
+            messageDiv.appendChild(textDiv);
+            chatbox.appendChild(messageDiv);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+        
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator-container');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+        
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput').value;
+            if (userInput.trim() === '' || isWaitingForResponse) return;
+
+            addMessage('user', userInput);
+            document.getElementById('userInput').value = '';
+            
+            isWaitingForResponse = true;
+            addTypingIndicator();
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-api-key': window.APP_API_KEY || 'YOUR_APP_API_KEY' 
+                    },
+                    body: JSON.stringify({ query: userInput, session_id: session_id })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server responded with ${response.status}`);
+                }
+                
+                const data = await response.json();
+                removeTypingIndicator();
+                addMessage('bot', data.response);
+            } catch (error) {
+                console.error('Error sending message:', error);
+                removeTypingIndicator();
+                addMessage('bot', 'Sorry, there was an error processing your message. Please try again.');
+                showStatusMessage('Connection error. Please check your internet connection.');
+            } finally {
+                isWaitingForResponse = false;
+            }
+        }
+        
+        async function sendAudioMessage(audioBlob) {
+            if (isWaitingForResponse) return;
+            
+            showStatusMessage('Processing voice message...', 2000);
+            
+            isWaitingForResponse = true;
+            addTypingIndicator();
+            
+            const formData = new FormData();
+            formData.append('audio', audioBlob, 'recording.wav');
+            formData.append('session_id', session_id);
+            
+            try {
+                const response = await fetch('/process_audio', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server responded with ${response.status}`);
+                }
+                
+                const data = await response.json();
+                removeTypingIndicator();
+                
+                if (data.transcription) {
+                    addMessage('user', data.transcription);
+                }
+                
+                addMessage('bot', data.response);
+            } catch (error) {
+                console.error('Error sending audio:', error);
+                removeTypingIndicator();
+                addMessage('bot', 'Sorry, there was an error processing your voice message.');
+                showStatusMessage('Failed to process audio. Please try again.');
+            } finally {
+                isWaitingForResponse = false;
+            }
+        }
+        
+        function startRecording() {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.start();
+                    
+                    isRecording = true;
+                    document.getElementById('recordButton').classList.add('recording');
+                    document.getElementById('recordButton').innerHTML = '<i class="fas fa-stop"></i>';
+                    showStatusMessage('Recording started...', 2000);
+                    
+                    audioChunks = [];
+                    mediaRecorder.addEventListener("dataavailable", event => {
+                        audioChunks.push(event.data);
+                    });
+                    
+                    mediaRecorder.addEventListener("stop", () => {
+                        if (audioChunks.length > 0) {
+                            audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                            sendAudioMessage(audioBlob);
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error accessing microphone:', error);
+                    showStatusMessage('Unable to access the microphone. Please check your permissions.', 5000);
+                });
+        }
+        
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+                document.getElementById('recordButton').classList.remove('recording');
+                document.getElementById('recordButton').innerHTML = '<i class="fas fa-microphone"></i>';
+                showStatusMessage('Recording stopped', 1500);
+                
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+        }
+        
+        // Event listeners
+        document.getElementById('sendButton').addEventListener('click', sendMessage);
+        document.getElementById('userInput').addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        document.getElementById('recordButton').addEventListener('click', () => {
+            if (!isRecording) {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        });
+        
+        // Initialize session
+        window.onload = function() {
+            fetch('/new_session')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Server responded with ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    session_id = data.session_id;
+                    addMessage('bot', data.message);
+                    console.log("Session initialized with ID:", session_id);
+                })
+                .catch(error => {
+                    console.error('Error connecting to server:', error);
+                    addMessage('bot', 'Sorry, I am having trouble connecting to the server. Please refresh the page and try again.');
+                    showStatusMessage('Failed to connect to server. Please refresh.', 5000);
+                });
+        };
+    </script>
+</body>
+</html>
