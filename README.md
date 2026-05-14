@@ -391,4 +391,4 @@ UI sudah memiliki fungsi recording, tetapi backend endpoint `/process_audio` bel
 
 ## Lisensi
 
-Belum ada lisensi publik yang ditentukan untuk project ini.
+Project ini dapat digunakan, dimodifikasi, dan dikembangkan secara bebas untuk kebutuhan pribadi, pembelajaran, maupun pengembangan aplikasi. Silakan sesuaikan kembali implementasi, konfigurasi, dan integrasi sesuai kebutuhan masing-masing.
